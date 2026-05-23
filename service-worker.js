@@ -6,7 +6,7 @@
  * ===========================================================================*/
 
 // Changez ce numéro de version à chaque mise à jour pour forcer le rafraîchissement du cache.
-var CACHE = 'parterres-v8';
+var CACHE = 'parterres-v9';
 
 // Fichiers indispensables au fonctionnement hors-ligne (l'app shell).
 var FICHIERS = [
