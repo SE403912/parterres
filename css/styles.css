@@ -337,3 +337,18 @@ hr { border: none; border-top: 1px solid var(--gris-bord); margin: 6px 0; }
 }
 .btn-autorise { background: #E6F4EA; color: #1B5E20; border-color: #2E7D32 !important; }
 .btn-verrou { background: var(--blanc); color: var(--noir); }
+
+/* =============================================================================
+ *  Gestion session / secteur / lieu (renommer ✎ + supprimer ✕)
+ * ===========================================================================*/
+/* La carte peut désormais porter 2 boutons (✎ et ✕) à droite. */
+.carte--lieu .btn-mini-edit { border-left: 2px solid var(--noir); }
+
+/* Actions sur l'en-tête de secteur, poussées à droite. */
+.secteur-actions { margin-left: auto; display: flex; gap: 4px; }
+.secteur-actions button {
+  width: 30px; height: 30px; border-radius: 2px; cursor: pointer;
+  background: var(--blanc); font-size: 13px; line-height: 1; padding: 0;
+}
+.secteur-actions .btn-mini-edit { border: 1.5px solid var(--noir); color: var(--noir); }
+.secteur-actions .btn-mini-suppr { border: 1.5px solid var(--rouge-danger); color: var(--rouge-danger); }
