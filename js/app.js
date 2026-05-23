@@ -139,6 +139,7 @@ App.UI = (function () {
             + '<button class="lieu-zone" data-open="' + esc(s.id) + '">'
             + '<span class="carte-titre">' + esc(s.nom) + '</span>'
             + '<span class="carte-sous">' + nb + ' lieu(x)</span></button>'
+            + '<button class="btn-mini-edit" data-editsession="' + esc(s.id) + '" aria-label="Renommer">✎</button>'
             + '<button class="btn-mini-suppr" data-delsession="' + esc(s.id) + '" aria-label="Supprimer">✕</button>'
             + '</div>';
         }).join('');
@@ -163,6 +164,34 @@ App.UI = (function () {
     [].forEach.call(racine.querySelectorAll('[data-delsession]'), function (b) {
       b.onclick = function (e) { e.stopPropagation(); supprimerSession(b.getAttribute('data-delsession')); };
     });
+    [].forEach.call(racine.querySelectorAll('[data-editsession]'), function (b) {
+      b.onclick = function (e) { e.stopPropagation(); renommerSession(b.getAttribute('data-editsession')); };
+    });
+  }
+
+  /** Renomme une session (avec une petite fenêtre de saisie). */
+  function renommerSession(id) {
+    var s = App.Storage.find('sessions', id);
+    if (!s) return;
+    var nom = prompt('Renommer la session :', s.nom);
+    if (nom === null) return; // annulé
+    nom = nom.trim();
+    if (!nom) return;
+    s.nom = nom;
+    App.Storage.upsert('sessions', s);
+    if (App.Sync.estEnLigne()) App.Sync.synchroniser(true);
+    rafraichir();
+  }
+
+  /**
+   * Supprime entièrement un lieu et son contenu (forme, végétaux existants,
+   * plantes posées). Fonction interne réutilisée par toutes les suppressions.
+   */
+  function effacerLieuComplet(lieuId) {
+    App.Storage.where('placements', 'lieu_id', lieuId).forEach(function (p) { App.Storage.remove('placements', p.id); });
+    App.Storage.where('existants', 'lieu_id', lieuId).forEach(function (e) { App.Storage.remove('existants', e.id); });
+    App.Storage.where('formes', 'lieu_id', lieuId).forEach(function (f) { App.Storage.remove('formes', f.id); });
+    App.Storage.remove('lieux', lieuId);
   }
 
   /**
@@ -174,12 +203,7 @@ App.UI = (function () {
     if (!s) return;
     if (!confirm('Supprimer la session « ' + s.nom + ' » et TOUT son contenu (lieux, formes, plantes posées) ?\n\nCette action est définitive.')) return;
 
-    App.Storage.where('lieux', 'session_id', id).forEach(function (l) {
-      App.Storage.where('placements', 'lieu_id', l.id).forEach(function (p) { App.Storage.remove('placements', p.id); });
-      App.Storage.where('existants', 'lieu_id', l.id).forEach(function (e) { App.Storage.remove('existants', e.id); });
-      App.Storage.where('formes', 'lieu_id', l.id).forEach(function (f) { App.Storage.remove('formes', f.id); });
-      App.Storage.remove('lieux', l.id);
-    });
+    App.Storage.where('lieux', 'session_id', id).forEach(function (l) { effacerLieuComplet(l.id); });
     App.Storage.remove('sessions', id);
 
     // Le stock des plantes posées peut avoir changé : on recalcule.
@@ -223,9 +247,16 @@ App.UI = (function () {
       ? '<p class="aide">Aucun lieu. Ajoutez un parterre ou importez un KML.</p>'
       : ordre.map(function (sec) {
           var cartes = groupes[sec].map(carteLieu).join('');
+          // Boutons de gestion du secteur (sauf pour le groupe "Sans secteur").
+          var actions = (sec === 'Sans secteur') ? '' :
+            '<span class="secteur-actions">'
+            + '<button class="btn-mini-edit" data-editsecteur="' + esc(sec) + '" aria-label="Renommer le secteur">✎</button>'
+            + '<button class="btn-mini-suppr" data-delsecteur="' + esc(sec) + '" aria-label="Supprimer le secteur">✕</button>'
+            + '</span>';
           return '<div class="groupe-secteur">'
-            + '<h2 class="titre-secteur">' + esc(sec)
-            + ' <span class="compte">' + groupes[sec].length + '</span></h2>'
+            + '<h2 class="titre-secteur"><span class="secteur-nom">' + esc(sec) + '</span>'
+            + ' <span class="compte">' + groupes[sec].length + '</span>'
+            + actions + '</h2>'
             + cartes + '</div>';
         }).join('');
 
@@ -251,6 +282,55 @@ App.UI = (function () {
     [].forEach.call(racine.querySelectorAll('[data-edit]'), function (b) {
       b.onclick = function (e) { e.stopPropagation(); editerLieu(b.getAttribute('data-edit')); };
     });
+    // Supprimer un lieu.
+    [].forEach.call(racine.querySelectorAll('[data-dellieu]'), function (b) {
+      b.onclick = function (e) { e.stopPropagation(); supprimerLieu(b.getAttribute('data-dellieu')); };
+    });
+    // Renommer un secteur (renomme tous ses lieux d'un coup).
+    [].forEach.call(racine.querySelectorAll('[data-editsecteur]'), function (b) {
+      b.onclick = function (e) { e.stopPropagation(); renommerSecteur(b.getAttribute('data-editsecteur')); };
+    });
+    // Supprimer un secteur (et tous ses lieux).
+    [].forEach.call(racine.querySelectorAll('[data-delsecteur]'), function (b) {
+      b.onclick = function (e) { e.stopPropagation(); supprimerSecteur(b.getAttribute('data-delsecteur')); };
+    });
+  }
+
+  /** Supprime un lieu (avec confirmation) et tout son contenu. */
+  function supprimerLieu(id) {
+    var l = App.Storage.find('lieux', id);
+    if (!l) return;
+    if (!confirm('Supprimer le lieu « ' + l.nom + ' » et tout son contenu (forme, plantes posées, végétaux existants) ?\n\nCette action est définitive.')) return;
+    effacerLieuComplet(id);
+    App.Plantes.liste().forEach(function (p) { App.Plantes.rafraichirStockPose(p.id); });
+    if (App.Sync.estEnLigne()) App.Sync.synchroniser(true);
+    rafraichir();
+  }
+
+  /** Renomme un secteur : applique le nouveau nom à tous les lieux concernés. */
+  function renommerSecteur(ancien) {
+    var concernes = App.Storage.where('lieux', 'session_id', sessionActive)
+      .filter(function (l) { return (l.secteur || '').trim() === ancien; });
+    if (concernes.length === 0) return;
+    var nouveau = prompt('Renommer le secteur « ' + ancien +' » (' + concernes.length + ' lieu(x)) :', ancien);
+    if (nouveau === null) return;
+    nouveau = nouveau.trim();
+    if (!nouveau || nouveau === ancien) return;
+    concernes.forEach(function (l) { l.secteur = nouveau; App.Storage.upsert('lieux', l); });
+    if (App.Sync.estEnLigne()) App.Sync.synchroniser(true);
+    rafraichir();
+  }
+
+  /** Supprime un secteur ET tous ses lieux (avec confirmation). */
+  function supprimerSecteur(nom) {
+    var concernes = App.Storage.where('lieux', 'session_id', sessionActive)
+      .filter(function (l) { return (l.secteur || '').trim() === nom; });
+    if (concernes.length === 0) return;
+    if (!confirm('Supprimer le secteur « ' + nom + ' » et ses ' + concernes.length + ' lieu(x) ?\n\nTout le contenu de ces lieux sera effacé. Action définitive.')) return;
+    concernes.forEach(function (l) { effacerLieuComplet(l.id); });
+    App.Plantes.liste().forEach(function (p) { App.Plantes.rafraichirStockPose(p.id); });
+    if (App.Sync.estEnLigne()) App.Sync.synchroniser(true);
+    rafraichir();
   }
 
   /** Génère la carte HTML d'un lieu (zone cliquable + bouton éditer). */
@@ -262,6 +342,7 @@ App.UI = (function () {
       + '<span class="carte-sous">' + (l.surface_reelle_m2 || '?') + ' m² · '
       + nbPl + ' plante(s)' + (l.latitude ? ' · 📍' : '') + '</span></button>'
       + '<button class="btn-mini-edit" data-edit="' + esc(l.id) + '" aria-label="Modifier">✎</button>'
+      + '<button class="btn-mini-suppr" data-dellieu="' + esc(l.id) + '" aria-label="Supprimer">✕</button>'
       + '</div>';
   }
 
