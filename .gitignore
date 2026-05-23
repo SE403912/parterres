@@ -1,0 +1,15 @@
+# === Sécurité : ne JAMAIS committer de secrets ===
+# La config (URL + token) vit dans le localStorage du téléphone, pas dans le repo.
+# Ce fichier reste néanmoins par précaution si vous créez un override local.
+.env
+.env.*
+config.local.js
+secrets.json
+
+# Système
+.DS_Store
+Thumbs.db
+*.log
+
+# Dépendances éventuelles
+node_modules/

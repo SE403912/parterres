@@ -1,0 +1,15 @@
+{
+  "name": "Parterres — Relevés de massifs",
+  "short_name": "Parterres",
+  "description": "Relevés de parterres : sessions, dessin de massifs à l'échelle, surfaces et stocks de plantes.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFFFFF",
+  "theme_color": "#1A4DE6",
+  "icons": [
+    { "src": "icons/icone-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icone-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
