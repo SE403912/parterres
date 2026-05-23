@@ -1,0 +1,339 @@
+/* =============================================================================
+ *  styles.css — IDENTITÉ VISUELLE
+ *  Style ultra-épuré : noir, blanc, et BLEU ROI comme unique couleur d'accent.
+ *  Les autres couleurs sont réservées à la fonction (couleur réelle des fleurs).
+ *  Interface pensée pour une utilisation au doigt, en extérieur (gros boutons,
+ *  fort contraste pour la lisibilité en plein soleil).
+ * ===========================================================================*/
+
+/* ----------------------------- Variables ---------------------------------- */
+:root {
+  --noir: #0A0A0A;
+  --blanc: #FFFFFF;
+  --gris-clair: #F4F4F4;
+  --gris-bord: #E2E2E2;
+  --gris-texte: #6B6B6B;
+  --bleu-roi: #1A4DE6;       /* couleur d'accent unique */
+  --bleu-roi-fonce: #133BB0;
+  --rouge-danger: #C62828;   /* fonctionnel uniquement (suppression) */
+
+  /* Typographie : un display caractériel + un corps net et lisible */
+  --police-titre: 'Georgia', 'Times New Roman', serif;
+  --police-corps: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+
+/* ----------------------------- Base --------------------------------------- */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  background: var(--blanc);
+  color: var(--noir);
+  font-family: var(--police-corps);
+  -webkit-font-smoothing: antialiased;
+  /* Évite la sélection de texte intempestive pendant le dessin tactile */
+  -webkit-user-select: none;
+  user-select: none;
+  overscroll-behavior: none;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  max-width: 720px;     /* confortable sur tablette, plein écran sur mobile */
+  margin: 0 auto;
+}
+
+/* ----------------------------- En-tête ------------------------------------ */
+.entete {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px;
+  padding-top: max(14px, env(safe-area-inset-top)); /* encoche iPhone */
+  border-bottom: 2px solid var(--noir);
+  background: var(--blanc);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.titre {
+  flex: 1;
+  font-family: var(--police-titre);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.btn-icone {
+  width: 40px; height: 40px;
+  border: none; background: none;
+  font-size: 30px; line-height: 1;
+  color: var(--noir); cursor: pointer;
+}
+.btn-icone--vide { visibility: hidden; }
+
+/* Pastille d'état réseau */
+.statut { font-size: 11px; font-weight: 600; white-space: nowrap; }
+.statut--online { color: var(--bleu-roi); }
+.statut--offline { color: var(--gris-texte); }
+.statut--sync { color: var(--bleu-roi); }
+.statut--error { color: var(--rouge-danger); }
+
+/* ----------------------------- Contenu ------------------------------------ */
+.contenu {
+  flex: 1;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.aide { color: var(--gris-texte); font-size: 14px; line-height: 1.5; }
+
+.barre-actions { display: flex; gap: 10px; }
+.barre-actions .btn-principal { flex: 1; }
+
+/* ----------------------------- Listes & cartes ---------------------------- */
+.liste { display: flex; flex-direction: column; gap: 10px; }
+.carte {
+  display: flex; flex-direction: column; gap: 4px;
+  width: 100%; text-align: left;
+  padding: 18px 16px;
+  background: var(--blanc);
+  border: 2px solid var(--noir);
+  border-radius: 2px;            /* angles quasi droits = look épuré */
+  cursor: pointer;
+  transition: transform .05s ease, background .15s ease;
+}
+.carte:active { transform: scale(0.99); background: var(--gris-clair); }
+.carte-titre { font-size: 17px; font-weight: 700; }
+.carte-sous { font-size: 13px; color: var(--gris-texte); }
+
+/* ----------------------------- Boutons ------------------------------------ */
+.btn-principal, .btn-secondaire, .btn-danger {
+  padding: 16px; border-radius: 2px;
+  font-size: 16px; font-weight: 700; cursor: pointer;
+  border: 2px solid var(--noir);
+}
+.btn-principal { background: var(--bleu-roi); color: var(--blanc); border-color: var(--bleu-roi); }
+.btn-principal:active { background: var(--bleu-roi-fonce); }
+.btn-secondaire { background: var(--blanc); color: var(--noir); }
+.btn-danger { background: var(--blanc); color: var(--rouge-danger); border-color: var(--rouge-danger); }
+
+/* ----------------------------- Formulaire --------------------------------- */
+.champ { display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600; }
+.champ input {
+  padding: 14px; font-size: 16px;       /* 16px = pas de zoom auto iOS */
+  border: 2px solid var(--noir); border-radius: 2px;
+  background: var(--blanc); color: var(--noir);
+  -webkit-user-select: text; user-select: text;
+}
+.champ input:focus { outline: 3px solid var(--bleu-roi); outline-offset: -1px; }
+
+.message { font-size: 14px; min-height: 20px; }
+.message--ok { color: var(--bleu-roi); font-weight: 600; }
+.message--erreur { color: var(--rouge-danger); font-weight: 600; }
+hr { border: none; border-top: 1px solid var(--gris-bord); margin: 6px 0; }
+
+/* ----------------------------- Atelier de dessin -------------------------- */
+.contenu--dessin { padding: 0; gap: 0; }
+
+.bandeau-infos {
+  display: flex; gap: 16px; flex-wrap: wrap;
+  padding: 12px 16px;
+  background: var(--noir); color: var(--blanc);
+  font-size: 13px;
+}
+.info-val { font-size: 18px; font-weight: 700; color: #fff; }
+.info-bloc { display: flex; align-items: baseline; gap: 6px; }
+
+.zone-canvas { flex: 1; position: relative; background: var(--blanc); touch-action: none; }
+#canvas-massif { width: 100%; height: 100%; display: block; touch-action: none; }
+
+/* Barre d'outils terrain : boutons LARGES, faciles au doigt */
+.palette {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px;
+  background: var(--noir);
+  padding-bottom: env(safe-area-inset-bottom); /* zone sûre iPhone */
+}
+.btn-tactile {
+  padding: 20px 8px; font-size: 15px; font-weight: 700;
+  border: none; background: var(--blanc); color: var(--noir);
+  cursor: pointer; min-height: 64px;     /* cible tactile généreuse */
+}
+.btn-tactile:active { background: var(--gris-clair); }
+.btn-tactile--accent { background: var(--bleu-roi); color: var(--blanc); }
+.btn-tactile--accent:active { background: var(--bleu-roi-fonce); }
+.btn-undo { background: var(--gris-clair); }
+
+/* Sur grand écran, les 4 outils tiennent sur une ligne */
+@media (min-width: 540px) {
+  .palette { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* =============================================================================
+ *  ÉTAPE 2 — Placement des plantes, filtre couleur & tableau de bord
+ * ===========================================================================*/
+
+/* --- Onglets Massif / Plantes (atelier de dessin) --- */
+.onglets { display: flex; border-bottom: 2px solid var(--noir); }
+.onglet {
+  flex: 1; padding: 14px; border: none; background: var(--blanc);
+  font-size: 15px; font-weight: 700; color: var(--gris-texte); cursor: pointer;
+  border-right: 1px solid var(--gris-bord);
+}
+.onglet:last-child { border-right: none; }
+.onglet--actif { color: var(--blanc); background: var(--bleu-roi); }
+
+/* --- Renomme l'ancienne classe .palette en .palette-outils (barre d'outils) --- */
+.palette-outils {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px;
+  background: var(--noir);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+@media (min-width: 540px) { .palette-outils { grid-template-columns: repeat(4, 1fr); } }
+
+/* --- Palette des plantes (mode "plantes") --- */
+.palette-plantes { background: var(--gris-clair); border-top: 1px solid var(--gris-bord); }
+
+/* Filtre d'exclusion par couleur */
+.filtres-couleur {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  padding: 10px 12px; border-bottom: 1px solid var(--gris-bord);
+  background: var(--blanc);
+}
+.filtre-couleur {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  padding: 6px 10px; border: 1.5px solid var(--gris-bord); border-radius: 2px;
+  background: var(--blanc);
+}
+.filtre-couleur input { width: 16px; height: 16px; accent-color: var(--bleu-roi); }
+
+/* Pastille de couleur réelle (filtre + chips + liste plantes) */
+.pastille-couleur {
+  width: 16px; height: 16px; border-radius: 50%;
+  border: 1px solid rgba(10,10,10,0.35); flex-shrink: 0; display: inline-block;
+}
+
+/* Chips de plantes (défilement horizontal pour rester accessible au doigt) */
+.chips {
+  display: flex; gap: 8px; padding: 10px 12px;
+  overflow-x: auto; -webkit-overflow-scrolling: touch;
+}
+.chip-plante {
+  display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0;
+  padding: 12px 14px; min-height: 52px;
+  background: var(--blanc); border: 2px solid var(--noir); border-radius: 2px;
+  font-size: 14px; font-weight: 700; cursor: pointer;
+}
+.chip-plante--actif { border-color: var(--bleu-roi); background: #EEF2FE; }
+.chip-plante--epuise { opacity: 0.4; }
+.chip-nom { white-space: nowrap; }
+.chip-reste {
+  background: var(--bleu-roi); color: var(--blanc);
+  border-radius: 999px; padding: 2px 8px; font-size: 12px; min-width: 22px; text-align: center;
+}
+.chip-plante--epuise .chip-reste { background: var(--rouge-danger); }
+
+/* --- Carte plante (écran de gestion) --- */
+.carte--plante { flex-direction: row; align-items: center; gap: 12px; }
+.plante-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.btn-mini-suppr {
+  width: 36px; height: 36px; border: 2px solid var(--rouge-danger);
+  background: var(--blanc); color: var(--rouge-danger); border-radius: 2px;
+  font-size: 16px; font-weight: 700; cursor: pointer;
+}
+
+/* --- Tableau de bord --- */
+.bloc-session { margin-bottom: 22px; }
+.titre-session {
+  font-family: var(--police-titre); font-size: 19px; font-weight: 700;
+  padding-bottom: 4px; border-bottom: 2px solid var(--bleu-roi);
+}
+.resume-session { font-size: 13px; color: var(--gris-texte); margin: 6px 0 10px; }
+.tableau { width: 100%; border-collapse: collapse; font-size: 14px; }
+.tableau th, .tableau td {
+  text-align: left; padding: 12px 10px; border-bottom: 1px solid var(--gris-bord);
+}
+.tableau th { font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gris-texte); }
+.tableau .num { text-align: right; font-variant-numeric: tabular-nums; }
+.tableau tbody tr { cursor: pointer; }
+.tableau tbody tr:active { background: var(--gris-clair); }
+.tableau td.vide { color: var(--gris-texte); font-style: italic; text-align: center; }
+
+/* --- Bouton export PDF (occupe toute la largeur sous les outils) --- */
+.btn-pdf { grid-column: 1 / -1; background: var(--noir); color: var(--blanc); }
+.btn-pdf:active { background: #222; }
+
+/* --- Dialogue modal (choix de l'échelle d'export) --- */
+.modal-fond {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(10,10,10,0.55);
+  display: flex; align-items: center; justify-content: center; padding: 18px;
+}
+.modal {
+  width: 100%; max-width: 420px; background: var(--blanc);
+  border: 2px solid var(--noir); border-radius: 2px; padding: 18px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.modal-titre { font-family: var(--police-titre); font-size: 20px; font-weight: 700; }
+.modal select {
+  padding: 14px; font-size: 16px; border: 2px solid var(--noir);
+  border-radius: 2px; background: var(--blanc);
+}
+.modal .barre-actions { margin-top: 4px; }
+.modal .barre-actions .btn-principal,
+.modal .barre-actions .btn-secondaire { flex: 1; }
+
+/* =============================================================================
+ *  Secteurs (regroupement des lieux)
+ * ===========================================================================*/
+.groupe-secteur { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
+.titre-secteur {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--police-titre); font-size: 16px; font-weight: 700;
+  padding-bottom: 6px; border-bottom: 2px solid var(--bleu-roi); margin-bottom: 2px;
+}
+.titre-secteur .compte {
+  font-family: var(--police-corps); font-size: 12px; font-weight: 700;
+  background: var(--bleu-roi); color: var(--blanc);
+  border-radius: 999px; padding: 1px 8px;
+}
+
+/* Carte de lieu : zone cliquable + bouton éditer */
+.carte--lieu { flex-direction: row; align-items: stretch; gap: 0; padding: 0; overflow: hidden; }
+.lieu-zone {
+  flex: 1; text-align: left; border: none; background: var(--blanc);
+  padding: 16px; cursor: pointer; display: flex; flex-direction: column; gap: 4px;
+}
+.lieu-zone:active { background: var(--gris-clair); }
+.btn-mini-edit {
+  width: 52px; border: none; border-left: 2px solid var(--noir);
+  background: var(--blanc); color: var(--noir); font-size: 18px; cursor: pointer;
+}
+.btn-mini-edit:active { background: var(--gris-clair); }
+
+/* Ligne d'en-tête de secteur dans le tableau de bord */
+.ligne-secteur td {
+  background: var(--gris-clair); font-weight: 700; font-size: 12px;
+  text-transform: uppercase; letter-spacing: 0.5px; color: var(--bleu-roi);
+  padding: 8px 10px;
+}
+.cellule-lieu { padding-left: 18px; }
+
+/* =============================================================================
+ *  Végétation existante (mode "Existant")
+ * ===========================================================================*/
+.existant-actions { display: flex; flex-direction: column; gap: 2px; padding: 8px 12px 12px; }
+.existant-info {
+  font-size: 14px; padding: 6px 0; color: var(--noir);
+}
+.existant-actions .btn-tactile {
+  min-height: 52px; border: 2px solid var(--noir); border-radius: 2px; margin-top: 6px;
+}
+.btn-autorise { background: #E6F4EA; color: #1B5E20; border-color: #2E7D32 !important; }
+.btn-verrou { background: var(--blanc); color: var(--noir); }
